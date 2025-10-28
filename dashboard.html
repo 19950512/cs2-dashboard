@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 CS2 Stats - Dashboard do Grupo</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-purple: #bc8cff;
+            --accent-orange: #f78166;
+            --accent-red: #ff7b72;
+            --glow-blue: rgba(88, 166, 255, 0.3);
+            --glow-green: rgba(63, 185, 80, 0.3);
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(13, 17, 23, 0.92), rgba(13, 17, 23, 0.96)),
+                url('https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/730/ss_b2fa3459318a78c2ea4b468c38e97b10d28a6f0c.1920x1080.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            z-index: -1;
+            opacity: 0.25;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(88, 166, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(188, 140, 255, 0.08) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .header { 
+            text-align: center; 
+            margin-bottom: 40px; 
+            padding: 40px 20px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 { 
+            font-size: 3em; 
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header h1::before {
+            content: '🔫';
+            font-size: 50px;
+            filter: drop-shadow(0 0 10px var(--glow-blue));
+        }
+
+        .header h1::after {
+            content: '🎯';
+            font-size: 50px;
+            filter: drop-shadow(0 0 10px var(--glow-purple));
+        }
+
+        .header p { 
+            color: var(--text-secondary); 
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .header-links {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .header-links a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .header-links a:hover {
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px var(--glow-blue);
+            transform: translateY(-2px);
+        }
+
+        .stats-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); 
+            gap: 24px; 
+            max-width: 1600px; 
+            margin: 0 auto; 
+        }
+
+        .card { 
+            background: var(--bg-secondary);
+            backdrop-filter: blur(16px);
+            border-radius: 16px; 
+            padding: 28px; 
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .card:hover { 
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border-color: var(--accent-blue);
+        }
+
+        .card h3 { 
+            color: var(--accent-blue);
+            margin-bottom: 24px; 
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .card h3::before {
+            content: '🎯';
+            font-size: 1.2em;
+            filter: drop-shadow(0 0 8px var(--glow-blue));
+        }
+
+        .card:nth-child(1) h3::before { content: '👑'; }
+        .card:nth-child(2) h3::before { content: '💀'; }
+        .card:nth-child(3) h3::before { content: '🎮'; }
+        
+        .player-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 16px;
+            margin-bottom: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .player-row:hover {
+            background: rgba(88, 166, 255, 0.1);
+            border-color: var(--accent-blue);
+            transform: translateX(4px);
+        }
+
+        .player-row:last-child { 
+            margin-bottom: 0; 
+        }
+        
+        .player-name { 
+            font-weight: 600; 
+            font-size: 1.05em;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .player-stats { 
+            color: var(--accent-green); 
+            font-weight: 700;
+            font-size: 1.1em;
+            text-shadow: 0 0 10px var(--glow-green);
+        }
+        
+        .loading { 
+            text-align: center; 
+            color: var(--text-secondary); 
+            padding: 60px 20px;
+            font-size: 1.1em;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 700;
+            margin: 30px auto;
+            display: block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(88, 166, 255, 0.3);
+            border: 1px solid var(--accent-blue);
+        }
+        
+        .refresh-btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px var(--glow-blue);
+            filter: brightness(1.1);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+        
+        .status-info {
+            background: rgba(63, 185, 80, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            text-align: center;
+            color: var(--accent-green);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-info::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%233fb950"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>') center/contain no-repeat;
+            opacity: 0.5;
+        }
+        
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-blue);
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+
+        .player-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--glow-blue);
+        }
+        
+        .player-avatar-small {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-blue);
+            object-fit: cover;
+        }
+        
+        .discord-badge {
+            background: linear-gradient(135deg, #5865F2, #7289da);
+            color: white;
+            font-size: 0.75em;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-left: 10px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(88, 102, 242, 0.3);
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .player-names {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .cs2-name {
+            font-weight: 700;
+            font-size: 1.05em;
+            color: var(--text-primary);
+        }
+        
+        .discord-name {
+            font-size: 0.85em;
+            color: var(--accent-blue);
+            font-weight: 500;
+        }
+        
+        .rank {
+            font-size: 1.4em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            width: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .rank::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            left: 50%;
+            top: -8px;
+            transform: translateX(-50%);
+            opacity: 0.6;
+        }
+
+        .player-row:nth-child(1) .rank::before {
+            content: '👑';
+            font-size: 20px;
+            filter: drop-shadow(0 0 10px gold);
+        }
+
+        .player-row:nth-child(2) .rank::before {
+            content: '🥈';
+            font-size: 18px;
+        }
+
+        .player-row:nth-child(3) .rank::before {
+            content: '🥉';
+            font-size: 18px;
+        }
+        
+        .link-discord-btn {
+            background: linear-gradient(135deg, #5865F2, #7289da);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95em;
+            margin: 15px auto;
+            display: block;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+        }
+        
+        .link-discord-btn:hover {
+            background: linear-gradient(135deg, #4752c4, #5865f2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(88, 101, 242, 0.5);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 5px;
+            border: 2px solid var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-blue);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2em; }
+            .stats-container { grid-template-columns: 1fr; }
+            .card { padding: 20px; }
+            .player-row { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎮 CS2 Stats - Dashboard do Grupo</h1>
+        <p>Estatísticas compartilhadas em tempo real</p>
+        <div class="header-links">
+            <a href="https://cs2.pintu.com.br" target="_blank">
+                🌐 cs2.pintu.com.br
+            </a>
+            <a href="https://discord.gg/XuGt2vyQ" target="_blank">
+                💬 Discord do Grupo
+            </a>
+        </div>
+    </div>
+
+    <div class="status-info">
+        <span id="status-text">🔄 Carregando dados...</span>
+    </div>
+
+    <button class="refresh-btn" onclick="carregarTudo()">🔄 Atualizar Stats</button>
+
+    <div class="stats-container">
+        <div class="card">
+            <h3>🏆 Ranking K/D</h3>
+            <div id="ranking-kd" class="loading">Carregando...</div>
+        </div>
+
+        <div class="card">
+            <h3>🔥 Ranking Frags</h3>
+            <div id="ranking-frags" class="loading">Carregando...</div>
+        </div>
+
+        <div class="card">
+            <h3>📅 Últimas Partidas</h3>
+            <div id="ultimas-partidas" class="loading">Carregando...</div>
+        </div>
+
+        <div class="card">
+            <h3>🗺️ Mapas Populares</h3>
+            <div id="mapas-populares" class="loading">Carregando...</div>
+        </div>
+
+        <div class="card">
+            <h3>📊 Stats Gerais</h3>
+            <div id="stats-gerais" class="loading">Carregando...</div>
+        </div>
+
+        <div class="card">
+            <h3>💬 Jogadores Discord</h3>
+            <div id="discord-players" class="loading">Carregando...</div>
+            <button class="link-discord-btn" onclick="mostrarComoVincular()">
+                🔗 Como Vincular Discord
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURAÇÃO SUPABASE
+        const SUPABASE_URL = 'https://hvbokgfvpuiivterexmk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2Ym9rZ2Z2cHVpaXZ0ZXJleG1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2MTAyMDcsImV4cCI6MjA3NzE4NjIwN30.osV1tWvxsGQewkX7VU3a25e5kz8vS-1bMXhqWTDNtI4';
+
+        function mostrarComoVincular() {
+            alert(`🔗 Como Vincular sua Conta Discord:
+
+1. Entre no Discord do grupo: https://discord.gg/XuGt2vyQ
+
+2. Envie uma mensagem no chat com seu nome do CS2:
+   "Meu nome no CS2 é: SEU_NOME_AQUI"
+
+3. Um admin irá vincular sua conta manualmente
+
+4. Após a vinculação, seu avatar e nome Discord aparecerão aqui!
+
+5. Para verificação automática, aguarde futuras atualizações com bot Discord`);
+        }
+
+        async function buscarDados(query) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${query}`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    // Se for 404, significa que a tabela/view não existe
+                    if (response.status === 404) {
+                        console.log(`View/tabela não encontrada: ${query}`);
+                        return [];
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Erro ao buscar dados:', error);
+                // Retorna array vazio em caso de erro para permitir fallback
+                return [];
+            }
+        }
+
+        async function carregarRankingKD() {
+            const container = document.getElementById('ranking-kd');
+            let dados = [];
+            
+            // Tenta primeiro com Discord, se falhar usa dados básicos
+            try {
+                dados = await buscarDados('cs2_player_stats_with_discord?order=kd_ratio.desc&limit=10');
+                console.log('Dados Discord K/D carregados:', dados?.length || 0);
+            } catch (error) {
+                console.log('View Discord K/D não disponível, usando fallback');
+            }
+            
+            if (!dados || dados.length === 0) {
+                // Fallback para dados básicos se a view Discord não existir
+                console.log('Carregando dados básicos para ranking K/D');
+                const dadosBasicos = await buscarDados('cs2_matches?select=player_name,kills,deaths&limit=1000');
+                if (dadosBasicos && dadosBasicos.length > 0) {
+                    // Agrupa por jogador
+                    const jogadores = {};
+                    dadosBasicos.forEach(partida => {
+                        if (!jogadores[partida.player_name]) {
+                            jogadores[partida.player_name] = { kills: 0, deaths: 0 };
+                        }
+                        jogadores[partida.player_name].kills += partida.kills;
+                        jogadores[partida.player_name].deaths += partida.deaths;
+                    });
+
+                    // Converte para formato esperado
+                    dados = Object.entries(jogadores)
+                        .map(([nome, stats]) => ({
+                            player_name: nome,
+                            total_kills: stats.kills,
+                            total_deaths: stats.deaths,
+                            kd_ratio: stats.deaths > 0 ? (stats.kills / stats.deaths) : stats.kills,
+                            avatar_url: null,
+                            discord_username: null,
+                            is_verified: false
+                        }))
+                        .sort((a, b) => b.kd_ratio - a.kd_ratio)
+                        .slice(0, 10);
+                }
+            }
+            
+            if (!dados || dados.length === 0) {
+                container.innerHTML = '📭 Nenhuma partida registrada ainda';
+                return;
+            }
+
+            container.innerHTML = dados.map((jogador, index) => {
+                const avatarImg = jogador.avatar_url ? 
+                    `<img src="${jogador.avatar_url}" class="player-avatar" alt="Avatar">` : 
+                    `<div class="player-avatar" style="background: #7289da; display: flex; align-items: center; justify-content: center; font-weight: bold;">${jogador.player_name[0]}</div>`;
+                
+                const discordBadge = jogador.is_verified ? 
+                    `<span class="discord-badge">✓</span>` : '';
+                
+                return `
+                    <div class="player-row">
+                        <div class="player-info">
+                            <div class="rank">${index + 1}</div>
+                            ${avatarImg}
+                            <div class="player-names">
+                                <div class="cs2-name">${jogador.player_name}${discordBadge}</div>
+                                ${jogador.discord_username ? 
+                                    `<div class="discord-name">@${jogador.discord_username}</div>` : 
+                                    `<div class="discord-name">Não vinculado</div>`
+                                }
+                            </div>
+                        </div>
+                        <span class="player-stats">${typeof jogador.kd_ratio === 'number' ? jogador.kd_ratio.toFixed(2) : jogador.kd_ratio} K/D (${jogador.total_kills}K/${jogador.total_deaths}D)</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function carregarRankingFrags() {
+            const container = document.getElementById('ranking-frags');
+            let dados = [];
+            
+            // Tenta primeiro com Discord, se falhar usa dados básicos
+            try {
+                dados = await buscarDados('cs2_player_stats_with_discord?order=total_kills.desc&limit=10');
+                console.log('Dados Discord Frags carregados:', dados?.length || 0);
+            } catch (error) {
+                console.log('View Discord Frags não disponível, usando fallback');
+            }
+            
+            if (!dados || dados.length === 0) {
+                // Fallback para dados básicos se a view Discord não existir
+                console.log('Carregando dados básicos para ranking Frags');
+                const dadosBasicos = await buscarDados('cs2_matches?select=player_name,kills&limit=1000');
+                if (dadosBasicos && dadosBasicos.length > 0) {
+                    // Agrupa por jogador
+                    const jogadores = {};
+                    dadosBasicos.forEach(partida => {
+                        if (!jogadores[partida.player_name]) {
+                            jogadores[partida.player_name] = 0;
+                        }
+                        jogadores[partida.player_name] += partida.kills;
+                    });
+
+                    // Converte para formato esperado
+                    dados = Object.entries(jogadores)
+                        .map(([nome, frags]) => ({
+                            player_name: nome,
+                            total_kills: frags,
+                            avatar_url: null,
+                            discord_username: null,
+                            is_verified: false
+                        }))
+                        .sort((a, b) => b.total_kills - a.total_kills)
+                        .slice(0, 10);
+                }
+            }
+            
+            if (!dados || dados.length === 0) {
+                container.innerHTML = '📭 Nenhuma partida registrada ainda';
+                return;
+            }
+
+            container.innerHTML = dados.map((jogador, index) => {
+                const avatarImg = jogador.avatar_url ? 
+                    `<img src="${jogador.avatar_url}" class="player-avatar" alt="Avatar">` : 
+                    `<div class="player-avatar" style="background: #7289da; display: flex; align-items: center; justify-content: center; font-weight: bold;">${jogador.player_name[0]}</div>`;
+                
+                const discordBadge = jogador.is_verified ? 
+                    `<span class="discord-badge">✓</span>` : '';
+                
+                return `
+                    <div class="player-row">
+                        <div class="player-info">
+                            <div class="rank">${index + 1}</div>
+                            ${avatarImg}
+                            <div class="player-names">
+                                <div class="cs2-name">${jogador.player_name}${discordBadge}</div>
+                                ${jogador.discord_username ? 
+                                    `<div class="discord-name">@${jogador.discord_username}</div>` : 
+                                    `<div class="discord-name">Não vinculado</div>`
+                                }
+                            </div>
+                        </div>
+                        <span class="player-stats">${jogador.total_kills} frags</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function carregarUltimasPartidas() {
+            const container = document.getElementById('ultimas-partidas');
+            let dados = [];
+            
+            // Tenta primeiro com Discord, se falhar usa dados básicos
+            try {
+                dados = await buscarDados('cs2_matches_with_discord?order=timestamp.desc&limit=15');
+                console.log('Dados Discord carregados:', dados?.length || 0);
+            } catch (error) {
+                console.log('View Discord não disponível, usando fallback');
+            }
+            
+            if (!dados || dados.length === 0) {
+                // Fallback para dados básicos se a view Discord não existir
+                console.log('Carregando dados básicos para últimas partidas');
+                dados = await buscarDados('cs2_matches?select=player_name,map,kills,deaths,timestamp&order=timestamp.desc&limit=15');
+                if (dados && dados.length > 0) {
+                    dados = dados.map(partida => ({
+                        ...partida,
+                        avatar_url: null,
+                        discord_username: null,
+                        is_verified: false
+                    }));
+                }
+            }
+            
+            if (!dados || dados.length === 0) {
+                container.innerHTML = '📭 Nenhuma partida recente';
+                return;
+            }
+
+            container.innerHTML = dados.map(partida => {
+                const data = new Date(partida.timestamp);
+                const tempo = data.toLocaleString('pt-BR', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                const avatarImg = partida.avatar_url ? 
+                    `<img src="${partida.avatar_url}" class="player-avatar-small" alt="Avatar">` : 
+                    `<div class="player-avatar-small" style="background: #7289da; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">${partida.player_name[0]}</div>`;
+                
+                const discordBadge = partida.is_verified ? 
+                    `<span class="discord-badge" style="font-size: 12px;">✓</span>` : '';
+                
+                return `
+                    <div class="player-row">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            ${avatarImg}
+                            <div>
+                                <div class="player-name" style="display: flex; align-items: center; gap: 5px;">
+                                    ${partida.player_name}${discordBadge}
+                                </div>
+                                <div style="font-size: 0.9em; color: #aaa;">${partida.map} • ${tempo}</div>
+                            </div>
+                        </div>
+                        <span class="player-stats">${partida.kills}K/${partida.deaths}D</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function carregarMapasPopulares() {
+            const dados = await buscarDados('cs2_matches?select=map&limit=1000');
+            const container = document.getElementById('mapas-populares');
+            
+            if (!dados || dados.length === 0) {
+                container.innerHTML = '📭 Nenhum mapa jogado';
+                return;
+            }
+
+            const contadores = {};
+            dados.forEach(partida => {
+                contadores[partida.map] = (contadores[partida.map] || 0) + 1;
+            });
+
+            const mapasOrdenados = Object.entries(contadores)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8);
+
+            container.innerHTML = mapasOrdenados.map(([mapa, count]) => `
+                <div class="player-row">
+                    <span class="player-name">${mapa}</span>
+                    <span class="player-stats">${count} partidas</span>
+                </div>
+            `).join('');
+        }
+
+        async function carregarStatsGerais() {
+            const dados = await buscarDados('cs2_matches?select=kills,deaths,assists,mvps,player_name&limit=1000');
+            const container = document.getElementById('stats-gerais');
+            
+            if (!dados || dados.length === 0) {
+                container.innerHTML = '📭 Nenhuma estatística';
+                return;
+            }
+
+            const totalPartidas = dados.length;
+            const totalKills = dados.reduce((sum, p) => sum + p.kills, 0);
+            const totalDeaths = dados.reduce((sum, p) => sum + p.deaths, 0);
+            const totalMVPs = dados.reduce((sum, p) => sum + p.mvps, 0);
+            const kdGeral = totalDeaths > 0 ? (totalKills / totalDeaths) : totalKills;
+
+            // Conta jogadores únicos
+            const nomes = [...new Set(dados.map(p => p.player_name))];
+
+            container.innerHTML = `
+                <div class="player-row">
+                    <span class="player-name">👥 Jogadores Ativos</span>
+                    <span class="player-stats">${nomes.length}</span>
+                </div>
+                <div class="player-row">
+                    <span class="player-name">🎮 Total de Partidas</span>
+                    <span class="player-stats">${totalPartidas}</span>
+                </div>
+                <div class="player-row">
+                    <span class="player-name">💀 Total de Kills</span>
+                    <span class="player-stats">${totalKills.toLocaleString()}</span>
+                </div>
+                <div class="player-row">
+                    <span class="player-name">📈 K/D do Grupo</span>
+                    <span class="player-stats">${kdGeral.toFixed(2)}</span>
+                </div>
+                <div class="player-row">
+                    <span class="player-name">🏆 Total de MVPs</span>
+                    <span class="player-stats">${totalMVPs}</span>
+                </div>
+            `;
+        }
+
+        async function carregarDiscordPlayers() {
+            const container = document.getElementById('discord-players');
+            let dados = [];
+            
+            try {
+                dados = await buscarDados('cs2_discord_links?select=*');
+                console.log('Dados Discord Links carregados:', dados?.length || 0);
+            } catch (error) {
+                console.log('Tabela Discord Links não disponível ainda');
+            }
+            
+            if (!dados || dados.length === 0) {
+                container.innerHTML = `
+                    📭 Nenhum jogador vinculado ainda
+                    <br><small style="color: #aaa; margin-top: 10px; display: block;">
+                        Execute primeiro o setup do Discord para ativar esta funcionalidade.
+                        <br>Consulte o arquivo SETUP_DISCORD.md
+                    </small>
+                `;
+                return;
+            }
+
+            container.innerHTML = dados.map(player => {
+                const avatarImg = player.avatar_url ? 
+                    `<img src="${player.avatar_url}" class="player-avatar-small" alt="Avatar">` : 
+                    `<div class="player-avatar-small" style="background: #7289da; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">${player.discord_username[0]}</div>`;
+                
+                const verifiedBadge = player.is_verified ? 
+                    `<span class="discord-badge" style="font-size: 12px;">✓</span>` : '';
+                
+                return `
+                    <div class="player-row">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            ${avatarImg}
+                            <div>
+                                <div class="player-name">${player.player_name}${verifiedBadge}</div>
+                                <div style="font-size: 0.9em; color: #7289da;">@${player.discord_username}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function carregarTudo() {
+            document.getElementById('status-text').textContent = '🔄 Atualizando dados...';
+            
+            try {
+                await Promise.all([
+                    carregarRankingKD(),
+                    carregarRankingFrags(),
+                    carregarUltimasPartidas(),
+                    carregarMapasPopulares(),
+                    carregarStatsGerais(),
+                    carregarDiscordPlayers()
+                ]);
+
+                const agora = new Date().toLocaleString('pt-BR');
+                document.getElementById('status-text').textContent = `✅ Atualizado em ${agora}`;
+                console.log('Todos os dados carregados com sucesso');
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                document.getElementById('status-text').textContent = `❌ Erro ao carregar: ${error.message}`;
+            }
+        }
+
+        // Carrega ao abrir e atualiza automaticamente
+        carregarTudo();
+        setInterval(carregarTudo, 60000); // A cada 1 minuto
+    </script>
+</body>
+</html>
